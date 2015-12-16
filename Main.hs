@@ -3,39 +3,47 @@ module Main where
 import CargaDatos(cargaArchivo)
 import Control.Monad.State
 import qualified TablaVuelos as T
-import System.Exit
+import System.Exit(exitSuccess)
 
-menu = do
-    putStrLn $ "PIZARRA DE VUELOS AEROPUERTO INTERNACIONAL SIMON BOLIVAR\n\n" ++
+menu table = do
+    putStrLn $ "\n\nPIZARRA DE VUELOS AEROPUERTO INTERNACIONAL SIMON BOLIVAR\n" ++
                 "Eliga una opción:"
     putStr $ "1) Ver pizarra\n" ++ "2) Cargar vuelos desde archivo\n" ++
                 "3) Cargar vuelo manualmente\n" ++ "4) Eliminar vuelo\n"
                 ++ "0) Salir\n" ++ "Su elección: "
-    elección <- getChar
+    elección <- getLine
     return ()
     -- Usar una excepcion para asegurar que sea un digito
-    {-case (read elección : Int) of
-        1 -> putStrLn "Pizarra de vuelos de entrada" >>
-                evalState T.imprimirTablaEntrada centro >>
-                    putStrLn "Pizarra de vuelos de salida" >>
-                        evalState T.imprimirTablaSalida centro
+    case (read elección :: Int) of
+        1 -> printBlackboard table >> menu table
+        2 -> do
+                putStr "Introduza la ubicacion del archivo de vuelos:"
+                path <- getLine
+                table' <- fmap (\(lE, lS) ->
+                    execState (T.insertarListaVuelos lE lS) table
+                    ) $ cargaArchivo path
+                putStrLn "Carga exitosa"
+                menu table'
+        3 -> undefined
+        4 -> undefined
+        otherwise -> exitSuccess
 
-        2 -> undefined
-        otherwise -> exitSucess
--}
+
+printBlackboard :: T.Tabla -> IO ()
+printBlackboard table =
+    putStrLn "\tPizarra de vuelos de entrada" >>
+        (mapM_ putStrLn $ evalState T.imprimirTablaEntrada table) >>
+            putStrLn "\tPizarra de vuelos de salida" >>
+                (mapM_ putStrLn $ evalState T.imprimirTablaSalida table)
 
 
 
+main :: IO ()
 main = do
-    putStrLn $ "PIZARRA DE VUELOS AEROPUERTO INTERNACIONAL SIMON BOLIVAR\n\n" ++
-                "Eliga una opción:"
-    putStr $ "1) Ver pizarra\n" ++ "2) Cargar vuelos desde archivo\n" ++
-                "3) Cargar vuelo manualmente\n" ++ "4) Eliminar vuelo\n"
-                ++ "0) Salir\n" ++ "Su elección: "
-    centro <- fmap (\(lE, lS) -> T.crearTablaVuelos lE lS) cargaArchivo
-    putStrLn $ evalState (T.consultarVueloSalidaImp 18) centro
-    putStrLn "Pizarra de vuelos de entrada" >>
-                (mapM_ putStrLn $ evalState T.imprimirTablaEntrada centro) >>
-                    putStrLn "Pizarra de vuelos de salida" >>
-                        (mapM_ putStrLn $ evalState T.imprimirTablaSalida centro)
+    --putStr "Introduza la ubicacion del archivo de vuelos:"
+    --centro <- fmap (\(lE, lS) -> T.crearTablaVuelos lE lS) cargaArchivo
+    menu T.crearTablaVuelosVacia
+
+    --putStrLn $ evalState (T.consultarVueloSalidaImp 18) centro
+    --printBlackboard centro
     return ()

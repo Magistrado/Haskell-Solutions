@@ -2,16 +2,19 @@ module CargaDatos(cargaArchivo) where
 
 import qualified Vuelo as V
 import qualified Data.Time.Clock as T
-import Debug.Trace
 
-cargaArchivo =
+cargaArchivo path =
     do
-        procesado <- fmap lines $ readFile "vuelos.txt"
+        procesado <- fmap lines $ readFile path --"vuelos.txt"
         let (vuelosLlegada, restante) =
                 splitAt ((read $ head procesado)) $ tail procesado
         let vuelosSalida = (fst . splitAt (read $ head restante)) $ tail restante
 
         return (procesarVuelos vuelosLlegada, procesarVuelos vuelosSalida)
+
+
+
+
 
 
 procesarVuelos = map fragmentar
@@ -40,3 +43,4 @@ dividirDelim lin delimitador = case dropWhile (delimitador==) lin of
                                 s' -> w : dividirDelim s'' delimitador
                                       where (w, s'') =
                                              break (delimitador==) s'
+

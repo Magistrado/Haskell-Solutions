@@ -12,9 +12,20 @@ newtype Tabla = Tab {
     obtener :: (TablaVuelos, TablaVuelos)
 } deriving (Show)
 
+crearTablaVuelosVacia :: Tabla
+crearTablaVuelosVacia = Tab $ (Map.empty , Map.empty)
 
 crearTablaVuelos :: [(Int,Vuelo)] -> [(Int,Vuelo)] -> Tabla
 crearTablaVuelos lL lS = Tab $ (Map.fromList lL, Map.fromList lS )
+
+insertarListaVuelos :: [(Int,Vuelo)] -> [(Int,Vuelo)] -> Central ()
+insertarListaVuelos lL lS = do
+    centro <- get
+    put $ Tab $ (\(tE, tS) -> ((Map.fromList lL) `Map.union` tE, (Map.fromList lS) `Map.union` tS))
+                $ obtener centro
+    return ()
+
+insertarVuelo
 
 consultarVueloSalida, consultarVueloEntrada :: Int -> Central (Maybe Vuelo)
 consultarVueloSalida codVuelo =
