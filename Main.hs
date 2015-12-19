@@ -1,6 +1,6 @@
 module Main where
 
-import CargaDatos(cargaArchivo)
+import CargaDatos(cargaArchivo, cargarVueloManual, TablaDestino(..))
 import Control.Monad.State
 import qualified TablaVuelos as T
 import System.Exit(exitSuccess)
@@ -24,7 +24,13 @@ menu table = do
                     ) $ cargaArchivo path
                 putStrLn "Carga exitosa"
                 menu table'
-        3 -> undefined
+        3 -> cargarVueloManual >>=
+                (\(destino, vuelo) ->
+                    case destino of
+                        Salida -> undefined
+                        Entrada -> return $
+                                execState (T.insertarVueloEntrada vuelo) table )
+                        >>= (\tabla -> menu tabla)
         4 -> undefined
         otherwise -> exitSuccess
 

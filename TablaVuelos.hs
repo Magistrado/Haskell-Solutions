@@ -1,7 +1,7 @@
 module TablaVuelos where
 
 import qualified Data.Map.Lazy as Map
-import Vuelo (Vuelo)
+import Vuelo (Vuelo, nroVuelo)
 import Control.Monad.State
 
 type TablaVuelos = Map.Map Int Vuelo
@@ -25,7 +25,14 @@ insertarListaVuelos lL lS = do
                 $ obtener centro
     return ()
 
-insertarVuelo
+insertarVueloEntrada :: Vuelo -> Central ()
+insertarVueloEntrada vuelo = do
+    centro <- get
+    put $ Tab $ ( (Map.insert (nroVuelo vuelo) vuelo . fst . obtener) centro,
+                    (snd . obtener) centro)
+    return ()
+
+insertarVueloSalida vuelo = undefined
 
 consultarVueloSalida, consultarVueloEntrada :: Int -> Central (Maybe Vuelo)
 consultarVueloSalida codVuelo =

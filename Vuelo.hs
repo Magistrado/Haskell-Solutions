@@ -1,6 +1,7 @@
 module Vuelo(Estado,
              Vuelo,
-             crearVuelo) where
+             crearVuelo,
+             nroVuelo) where
 
 import qualified Data.Time.Clock as T
 --import qualified Data.ByteString.Lazy as B
