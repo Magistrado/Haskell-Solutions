@@ -1,9 +1,22 @@
+{-
+    Module: Main
+    Author: Daniel Leones
+    Created: 21/12/12
+    Purpose: This program is created for my practice in Haskell. I put myself to
+    implement concept from Haskell. Also, practice functional programming
+    Email: metaleones@gmail.com
+    Please,
+        - Send your proposals about improve my code skills,
+            how to use better functional programming
+-}
+
 module Main where
 
 import CargaDatos(cargaArchivo, cargarVueloManual, TablaDestino(..))
 import Control.Monad.State
 import qualified TablaVuelos as T
 import System.Exit(exitSuccess)
+import Text.Read (readMaybe)
 
 menu table = do
     putStrLn $ "\n\nPIZARRA DE VUELOS AEROPUERTO INTERNACIONAL SIMON BOLIVAR\n" ++
@@ -11,13 +24,13 @@ menu table = do
     putStr $ "1) Ver pizarra\n" ++ "2) Cargar vuelos desde archivo\n" ++
                 "3) Cargar vuelo manualmente\n" ++ "4) Eliminar vuelo\n"
                 ++ "0) Salir\n" ++ "Su elección: "
-    elección <- getLine
-    return ()
-    -- Usar una excepcion para asegurar que sea un digito
-    case (read elección :: Int) of
+
+    elección <- verifyInput
+    case elección of
         1 -> printBlackboard table >> menu table
         2 -> do
                 putStr "Introduza la ubicacion del archivo de vuelos:"
+                -- Manejar errores de camino al archivo
                 path <- getLine
                 table' <- fmap (\(lE, lS) ->
                     execState (T.insertarListaVuelos lE lS) table
@@ -30,10 +43,25 @@ menu table = do
                         Salida -> undefined
                         Entrada -> return $
                                 execState (T.insertarVueloEntrada vuelo) table )
-                        >>= (\tabla -> menu tabla)
+                        >>= menu
         4 -> undefined
         otherwise -> exitSuccess
 
+
+-- Implemented error checking
+verifyInput :: IO Int
+verifyInput = do
+    elección <- getLine
+    case readMaybe elección :: Maybe Int of
+        Just x -> return x
+        Nothing ->
+            (putStrLn $ "ENTRADA INVALIDA." ++
+                    "ESCRIBA UNA OPCION VALIDA, POR FAVOR") >>
+            putStr "Su elección: " >> verifyInput
+
+{-
+    This function prints all the flights stored in T.Tabla. Departure and Arrivals.
+-}
 
 printBlackboard :: T.Tabla -> IO ()
 printBlackboard table =
@@ -45,11 +73,4 @@ printBlackboard table =
 
 
 main :: IO ()
-main = do
-    --putStr "Introduza la ubicacion del archivo de vuelos:"
-    --centro <- fmap (\(lE, lS) -> T.crearTablaVuelos lE lS) cargaArchivo
-    menu T.crearTablaVuelosVacia
-
-    --putStrLn $ evalState (T.consultarVueloSalidaImp 18) centro
-    --printBlackboard centro
-    return ()
+main = menu T.crearTablaVuelosVacia

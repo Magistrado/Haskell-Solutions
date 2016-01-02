@@ -42,6 +42,10 @@ consultarVueloEntrada codVuelo = do
     centro <- get
     return $ Map.lookup codVuelo (fst $ obtener centro)
 
+eliminarVueloSalida = undefined -- Manejar los erroes puramente
+
+eliminarVueloEntrada = undefined -- Manejar los erroes puramente
+
 consultarVueloSalidaImp :: Int -> Central String
 consultarVueloSalidaImp codVuelo = do
     centro <- get

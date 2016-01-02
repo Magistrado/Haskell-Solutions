@@ -25,6 +25,7 @@ data Vuelo = Vuel {
                 estado :: Estado
             } deriving (Eq)
 
+-- use Data.Time.Format
 instance Show Vuelo where
     show v = (show . nroVuelo) v ++ "  " ++  (show . codAerolinea) v ++ "  "
                 ++ (show . codAeroSalida) v ++ "  " ++ (show . codAeroLlegada) v ++
